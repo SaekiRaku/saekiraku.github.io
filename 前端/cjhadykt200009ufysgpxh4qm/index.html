@@ -9,12 +9,12 @@
 <meta name="keywords" content="webpack">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Webpack 前端编译策略的优化">
-<meta property="og:url" content="https://saekiraku.github.io/2018/05/17/Webpack编译策略与优化/index.html">
+<meta property="og:url" content="https://saekiraku.github.io/前端/cjhadykt200009ufysgpxh4qm/index.html">
 <meta property="og:site_name" content="Blog">
 <meta property="og:description" content="在前端工程化盛行的今天，很多公司为了提升开发效率与项目可维护性，都开始使用上了webpack这样的自动化工具。在享受自动化高效率的同时，也产生了一些性能上的问题：代码重复引用、臃肿的混合JS库、编译速度慢……，很多技术人员面对此类问题无从下手，求助于百度但是却不求甚解。所以本文将通过问题、分析、原因、解决方案几个步骤，来讲解前端自动化中的优化问题。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://saekiraku-1253597019.coscd.myqcloud.com/image/sec7j.jpeg">
-<meta property="og:updated_time" content="2018-05-17T09:50:06.446Z">
+<meta property="og:updated_time" content="2018-05-17T10:22:05.135Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Webpack 前端编译策略的优化">
 <meta name="twitter:description" content="在前端工程化盛行的今天，很多公司为了提升开发效率与项目可维护性，都开始使用上了webpack这样的自动化工具。在享受自动化高效率的同时，也产生了一些性能上的问题：代码重复引用、臃肿的混合JS库、编译速度慢……，很多技术人员面对此类问题无从下手，求助于百度但是却不求甚解。所以本文将通过问题、分析、原因、解决方案几个步骤，来讲解前端自动化中的优化问题。">
@@ -47,6 +47,7 @@
 </head>
 
 <body>
+    <script type="text/javascript" src="http://tajs.qq.com/stats?sId=65846734" charset="UTF-8"></script>
     <div id="container">
         <header id="header">
     <div id="header-main" class="header-inner">
@@ -185,7 +186,7 @@
 </aside>
 
             
-            <section id="main"><article id="post-Webpack编译策略与优化" class="article article-type-post" itemscope itemprop="blogPost">
+            <section id="main"><article id="post-Webpack 前端编译策略的优化" class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
         
             
@@ -210,7 +211,7 @@
                         
     <div class="article-date">
         <i class="fa fa-calendar"></i>
-        <a href="/2018/05/17/Webpack编译策略与优化/">
+        <a href="/前端/cjhadykt200009ufysgpxh4qm/">
             <time datetime="2018-05-17T06:01:55.000Z" itemprop="datePublished">2018-05-17</time>
         </a>
     </div>
@@ -240,7 +241,7 @@
 <a id="more"></a>
 <hr>
 <blockquote>
-<p>注意：本文假设您已有webpack基础，并了解基本的配置项的意义。在此基础上希望能了解一些webpack的优化规则。</p>
+<p>注意：本文假设您已有webpack基础，并了解基本的配置项的意义。适用于在此基础上希望能了解一些webpack的优化规则的情况。</p>
 </blockquote>
 <h1 id="问题1：编译后文件体积过大"><a href="#问题1：编译后文件体积过大" class="headerlink" title="问题1：编译后文件体积过大"></a>问题1：编译后文件体积过大</h1><p>该问题是指执行编译后，webpack在控制台输出的数据中的资源体积过大。一般会用黄色的字体标注上[big]。有时编译策略的错误，会导致代码文件达到5、6MB甚至10MB以上。假设用户的网速是2MB/s，加载一次页面也需要3s，并且再考虑到服务器的出口带宽，可能就需要数十秒才能显示出页面。</p>
 <p><img src="https://saekiraku-1253597019.coscd.myqcloud.com/image/hya65.png" alt="文件体积过大"></p>
@@ -256,14 +257,16 @@
 <h3 id="第三方类库"><a href="#第三方类库" class="headerlink" title="第三方类库"></a>第三方类库</h3><p>第三方类库一般是引起 Vendor.js 这样的文件过大的主要原因，实际上除非特殊需要，我们没有必要将第三方类库打包进我们的项目中。一般都是通过一些第三方的CDN服务(如：<a href="http://www.bootcdn.cn" target="_blank" rel="noopener">BootCDN</a>)来引入类库，1是能减少网站自身的流量使用，2是用户访问过其他网站，并且那个网站使用了同一个CDN地址时，就会直接命中缓存，而不用重新加载，减少了用户的等待时间。</p>
 <h3 id="webpack版本过低"><a href="#webpack版本过低" class="headerlink" title="webpack版本过低"></a>webpack版本过低</h3><p>这个问题目前（2018-05-17）应该不会有了，毕竟都已经webpack 4了。这里主要是想提一句 webpack 2 时增加的 Tree Shaking 代码优化技术。在一些公司的面试中可能会有考核，更多的内容，自己百度一下把。</p>
 <h2 id="媒体资源过大"><a href="#媒体资源过大" class="headerlink" title="媒体资源过大"></a>媒体资源过大</h2><p>这个问题其实不太属于前端的范畴，如果你们公司的UI比较负责的话，在给你媒体资源之前应该就已经优化过了。</p>
+<hr>
 <h1 id="问题2：加载缓慢"><a href="#问题2：加载缓慢" class="headerlink" title="问题2：加载缓慢"></a>问题2：加载缓慢</h1><p>当我们通过问题1缩减</p>
 <p><span id="HTTP并发"></span></p>
 <h2 id="加载请求并发"><a href="#加载请求并发" class="headerlink" title="加载请求并发"></a>加载请求并发</h2><p>假设我们一个页面引用了 10 余个JS模块，当加载这些JS文件时，HTTP协议会进行3次握手4次挥手，相当于加载完整个页面，就与服务器进行了70余次的连接/断开通信，大部分时间就都浪费在了建立连接的网络通信上。因此我们使用 CommonsChunkPlugin 将各个页面都会用到的模块打包进一个综合的Vendor.js中。来降低多次建立连接与并发。</p>
 <h2 id="启用缓存"><a href="#启用缓存" class="headerlink" title="启用缓存"></a>启用缓存</h2><p>通过上面的步骤尽可能的优化代码体积后，下一步要做的就是开启缓存。如果不开启缓存的话，用户每一次打开网站，都会从服务器重复的加载相同的资源文件。这样显然也是白白浪费带宽了。</p>
 <p>但是开启缓存后，如果我们更新了网站代码，浏览器会由于缓存原因，无法立刻同步最新代码。因此，我们需要使用 webpack 的 hash 标签来为资源文件进行命名。这样每一次编译的时候，资源文件都会被命名为类似 xxxx.fea39cda7bxxxx.js ，并且当文件内容发生变化后，hash 值也会发生变化，这样就会导致浏览器重新加载这个文件。也就达到了更新版本的目的了。</p>
-<p>但是别忘了不要给html加缓存，否则及时更新仍然是无效的。以Nginx为例的配置：</p>
+<p>但是别忘了不要给html加缓存，否则仍然是无法及时更新的。以Nginx为例的配置：</p>
 <figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">location</span> <span class="regexp">~ html$</span> &#123;</span><br><span class="line">	...</span><br><span class="line">	<span class="attribute">add_header</span> Cache-Control <span class="literal">no</span>-store;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="attribute">location</span> <span class="regexp">~ (js|css|png|jpg)$</span> &#123;</span><br><span class="line">	...</span><br><span class="line">	<span class="attribute">expires</span> <span class="number">30d</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h1 id="问题3：编译缓慢"><a href="#问题3：编译缓慢" class="headerlink" title="问题3：编译缓慢"></a>问题3：编译缓慢</h1>
+<h1 id="问题3：编译缓慢"><a href="#问题3：编译缓慢" class="headerlink" title="问题3：编译缓慢"></a>问题3：编译缓慢</h1><hr>
+<h2 id="使用-DllPlugin-amp-DllReferencePlugin-对第三方类库进行预编译"><a href="#使用-DllPlugin-amp-DllReferencePlugin-对第三方类库进行预编译" class="headerlink" title="使用 DllPlugin &amp; DllReferencePlugin 对第三方类库进行预编译"></a>使用 DllPlugin &amp; DllReferencePlugin 对第三方类库进行预编译</h2>
         
         </div>
         <footer class="article-footer">
@@ -337,7 +340,7 @@ window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMin
                     <li>
                         
                         <div class="item-thumbnail">
-                            <a href="/2018/05/17/Webpack编译策略与优化/" class="thumbnail">
+                            <a href="/前端/cjhadykt200009ufysgpxh4qm/" class="thumbnail">
     
     
         <span style="background-image:url(https://saekiraku-1253597019.coscd.myqcloud.com/image/sec7j.jpeg)" alt="Webpack 前端编译策略的优化" class="thumbnail-image"></span>
@@ -348,7 +351,7 @@ window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMin
                         
                         <div class="item-inner">
                             <p class="item-category"><a class="article-category-link" href="/categories/前端/">前端</a></p>
-                            <p class="item-title"><a href="/2018/05/17/Webpack编译策略与优化/" class="title">Webpack 前端编译策略的优化</a></p>
+                            <p class="item-title"><a href="/前端/cjhadykt200009ufysgpxh4qm/" class="title">Webpack 前端编译策略的优化</a></p>
                             <p class="item-date"><time datetime="2018-05-17T06:01:55.000Z" itemprop="datePublished">2018-05-17</time></p>
                         </div>
                     </li>
