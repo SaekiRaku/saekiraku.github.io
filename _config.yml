@@ -16,7 +16,7 @@ timezone: Asia/Shanghai
 url: https://saekiraku.github.io
 root: /
 # permalink: :year/:month/:day/:title/
-permalink: :category/:id/
+permalink: article/:abbrlink/
 # permalink_defaults:
 
 # Directory
