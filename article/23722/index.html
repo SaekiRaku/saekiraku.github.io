@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <meta charset="utf-8">
+    
+    <title>基于 Ansible 的分布式爬虫自动化部署 | Blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="使用 NodeJS + Redis + Ansible 实现分布式爬虫并且自动化批量部署上线。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于 Ansible 的分布式爬虫自动化部署">
+<meta property="og:url" content="https://saekiraku.github.io/article/23722/index.html">
+<meta property="og:site_name" content="Blog">
+<meta property="og:description" content="使用 NodeJS + Redis + Ansible 实现分布式爬虫并且自动化批量部署上线。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://saekiraku-1253597019.coscd.myqcloud.com/image/jsope.png">
+<meta property="og:updated_time" content="2018-06-14T09:31:00.060Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="基于 Ansible 的分布式爬虫自动化部署">
+<meta name="twitter:description" content="使用 NodeJS + Redis + Ansible 实现分布式爬虫并且自动化批量部署上线。">
+<meta name="twitter:image" content="https://saekiraku-1253597019.coscd.myqcloud.com/image/jsope.png">
+    
+
+    
+
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+</head>
+
+<body>
+    <script type="text/javascript" src="https://tajs.qq.com/stats?sId=65846734" charset="UTF-8"></script>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">Blog</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/.">首页</a>
+                
+                    <a class="main-nav-link" href="/archives">归档</a>
+                
+                    <a class="main-nav-link" href="/about">关于</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="http://saekiraku-1253597019.coscd.myqcloud.com/image/dr0bm.png" />
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/.">首页</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">归档</a></td>
+                
+                    <td><a class="main-nav-link" href="/about">关于</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索" />
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile" class="profile-fixed">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="http://saekiraku-1253597019.coscd.myqcloud.com/image/dr0bm.png" />
+            <h2 id="name">佐伯楽</h2>
+            <h3 id="title">Web Developer &amp; Designer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Hebei, China</span>
+            <a id="follow" target="_blank" href="https://github.com/saekiraku/">关注我</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                3
+                <span>文章</span>
+            </div>
+            <div class="article-info-block">
+                6
+                <span>标签</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="https://github.com/saekiraku/" target="_blank" title="github" class=tooltip>
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="https://weibo.com/5179454493/" target="_blank" title="weibo" class=tooltip>
+                            <i class="fa fa-weibo"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            <section id="main"><article id="post-基于Ansible的分布式爬虫自动化部署" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            
+	
+		<img src="https://saekiraku-1253597019.coscd.myqcloud.com/image/jsope.png" class="article-banner" />
+	
+
+
+
+        
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+            基于 Ansible 的分布式爬虫自动化部署
+        </h1>
+    
+
+                
+                    <div class="article-meta">
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/article/23722/">
+            <time datetime="2018-06-14T07:24:10.000Z" itemprop="datePublished">2018-06-14</time>
+        </a>
+    </div>
+
+
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/运维/">运维</a>
+    </div>
+
+                        
+                    </div>
+                
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+            
+            <p>使用 NodeJS + Redis + Ansible 实现分布式爬虫并且自动化批量部署上线。</p>
+<a id="more"></a>
+<hr>
+<h1 id="分布式爬虫"><a href="#分布式爬虫" class="headerlink" title="分布式爬虫"></a>分布式爬虫</h1><p>之前在爬取一个网站的数据时，为了保证可以稳定的访问站点，不被网站屏蔽。尝试了很多方法，除了伪造请求头的UA、Cookie，还要对请求频率进行限制，或者通过代理服务器访问来改变请求来源。但是限制频率和请求代理会导致爬虫的效率变得非常低。因此，决定改成分布式爬虫，由多台服务器同时进行爬取。</p>
+<p>该爬虫主要使用了 <code>NodeJS</code> 开发，并使用了 <code>Cheerio</code> 和 <code>ioredis</code> 两个框架。使用 Redis 同步各个爬虫的工作进度，并存储主要数据。</p>
+<p>使用分布式爬虫，就需要为每个服务器安装环境，初始化配置等等。2、3个服务器还好说，但是如果有100台服务器，我们肯定不能手动的为每台服务器都配置一遍，1是人工容易出错，2是效率太低。</p>
+<h1 id="Ansible-自动化运维工具"><a href="#Ansible-自动化运维工具" class="headerlink" title="Ansible 自动化运维工具"></a>Ansible 自动化运维工具</h1><blockquote>
+<p>基于Python开发，集合了众多运维工具（puppet、cfengine、chef、func、fabric）的优点，实现了批量系统配置、批量程序部署、批量运行命令等功能。ansible是基于模块工作的，本身没有批量部署的能力。真正具有批量部署的是ansible所运行的模块，ansible只是提供一种框架。</p>
+</blockquote>
+<p>除了 Ansible 以外，还有一款运维工具也是做服务器批量管理的 —— SaltStack。但是它的文档不够友好，并且由于通信机制的原因，需要在所有服务器上初始化一次 Salt Stack Minion，故没有选择此方案。（虽然 SaltStack 在后来也加入了 ssh 连接的支持）</p>
+<h2 id="安装-Ansible"><a href="#安装-Ansible" class="headerlink" title="安装 Ansible"></a>安装 Ansible</h2><p>在官方文档中有很多安装方法，但是在这里我选择了使用 pip 进行安装（懒，图省事）。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install ansible</span><br></pre></td></tr></table></figure></p>
+<p><strong>注意：使用 Ansible 时，进行管理的宿主机，必须是 Linux/MacOS/Unix 系统。</strong></p>
+<h2 id="服务器与分组"><a href="#服务器与分组" class="headerlink" title="服务器与分组"></a>服务器与分组</h2><p>在很多教程中，对 Ansible 的服务器配置都是要修改 <code>/etc/ansible/hosts</code> 文件来实现的，但是通过 pip 安装是不会产生这个文件的。</p>
+<p>当然我们可以手动去创建，但是尝试在终端中输入 <code>ansible --help</code> 就可以在帮助手册中看到能通过 -i 参数来指定 <code>inventory</code> 文件。</p>
+<p><code>inventory</code> 文件的格式简单的说就是用 <code>[]</code> 表示分组，用于批量管理，然后在分组下面写上服务器IP就可以了。IP后面写连接配置，例如一个服务器的登录用户名是root，密码是123456的配置写法是：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[master]</span> <span class="comment"># 分组名称</span></span><br><span class="line">127.0.0.1 ansible_ssh_user=root ansible_ssh_pass=123456</span><br></pre></td></tr></table></figure>
+<p><strong>注意：这种在配置中记录密码的方式并不安全，所以不推荐。最好是使用SSH密钥。</strong></p>
+<p>这个时候，我们就可以执行一些简单的命令，来测试配置是否正确了。在终端中输入 <code>ansible master -i ./inventory -m ping</code> 当你得到如下图所示的输出时，就算配置正确了。</p>
+<p><img src="https://saekiraku-1253597019.coscd.myqcloud.com/image/zd7ol.png" alt="使用 ping 命令测试与服务器的连接"></p>
+<p>最后，我们来分析一下真实的情况来写一个实际可用的配置。在这套爬虫系统中，除了每个服务器运行1个爬虫以外，还要有个服务器运行 redis 服务作为信息中枢。所以：所有服务器环境配置相同，单独拿出其中一个服务器再安装一个 redis 服务就可以了。同时，服务器连接使用 SSH 密钥的方式，最终配置如下。</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[master]</span></span><br><span class="line">0.0.0.0 ansible_ssh_private_key_file=./private.pem</span><br><span class="line"></span><br><span class="line"><span class="section">[default]</span></span><br><span class="line">0.0.0.0 ansible_ssh_private_key_file=./private.pem</span><br><span class="line">0.0.0.0 ansible_ssh_private_key_file=./private.pem</span><br><span class="line">0.0.0.0 ansible_ssh_private_key_file=./private.pem</span><br><span class="line">0.0.0.0 ansible_ssh_private_key_file=./private.pem</span><br><span class="line">......</span><br><span class="line"><span class="comment"># 配置中省略了服务器真实IP和数量</span></span><br></pre></td></tr></table></figure>
+<h2 id="编写-playbook-yml"><a href="#编写-playbook-yml" class="headerlink" title="编写 playbook.yml"></a>编写 playbook.yml</h2><p><code>playbook.yml</code> 是 Ansible 的主要配置文件，通过它我们可以安装环境、执行脚本、编排任务等等。我们先以一个最简单的例子上手 —— 安装 Python 运行环境（假定你的服务器是 CentOS 系统，使用 yum 软件包管理器）。</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">- hosts:</span> <span class="string">default</span></span><br><span class="line">  <span class="comment"># 服务器组</span></span><br><span class="line"><span class="attr">  remote_user:</span> <span class="string">root</span></span><br><span class="line">  <span class="comment"># 登录服务器用的用户名</span></span><br><span class="line"><span class="attr">  sudo:</span> <span class="literal">yes</span></span><br><span class="line">  <span class="comment"># 是否使用 sudo 执行命令</span></span><br><span class="line"><span class="attr">  tasks:</span></span><br><span class="line">  <span class="comment"># 任务列表</span></span><br><span class="line"><span class="attr">  - name:</span> <span class="string">安装</span> <span class="string">python</span> <span class="string">环境</span></span><br><span class="line">    <span class="comment"># 任务名称</span></span><br><span class="line"><span class="attr">    yum:</span> </span><br><span class="line">    <span class="comment"># 任务模块</span></span><br><span class="line"><span class="attr">      name:</span> <span class="string">python</span></span><br><span class="line">      <span class="comment"># yum 模块中的 name 参数（安装的软件包）</span></span><br><span class="line"><span class="attr">      state:</span> <span class="string">installed</span></span><br><span class="line">      <span class="comment"># yum 模块中的 state 参数（要达到的状态）</span></span><br></pre></td></tr></table></figure>
+<p>然后我们在终端中输入 <code>ansible-playbook -i ./inventory playbook.yml -f 10</code>（-f 的数值是启动的进程数），就可以完美的跑起来这个脚本了。最后我们手动连入服务器，运行 <code>python --version</code> 来检查是否安装成功。（PS：在部分系统镜像中，python可能已经内置了）</p>
+<p>在之前的简介中我们也说过 <code>Ansible是基于模块工作的，本身没有批量部署的能力。真正具有批量部署的是ansible所运行的模块，ansible只是提供一种框架。</code> 所以，如果我们想通过 yum 安装软件包，那么就用 yum 模块；如果我们想管理 docker 容器，那么就用 docker_container 模块。当然，服务软件那么多，Ansible 的模块肯定不能做到完全覆盖。因此，我们还可以通过 command 模块写自定义命令来实现上述功能。</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">- hosts:</span> <span class="string">default</span></span><br><span class="line"><span class="attr">  remote_user:</span> <span class="string">root</span></span><br><span class="line"><span class="attr">  sudo:</span> <span class="literal">yes</span></span><br><span class="line"><span class="attr">  tasks:</span></span><br><span class="line"><span class="attr">  - name:</span> <span class="string">安装</span> <span class="string">python</span> <span class="string">环境</span></span><br><span class="line"><span class="attr">    command:</span> <span class="string">yum</span> <span class="string">install</span> <span class="bullet">-y</span> <span class="string">python</span></span><br></pre></td></tr></table></figure>
+<p>那么这两种模式有什么区别？实际上我们观察 yum 模块的 <code>state</code> 的参数就会发现，他的值写的是 <code>install</code> 的过去式 <code>installed</code> 。这就表示 Ansible 追求的是任务达到了某个状态，而不是去做某个动作。这样做实际上是为了实现<code>幂等性</code>，也就是不管我们重复多少次操作，该操作的最终结果应该是一致的。</p>
+<p>举个例子，假设 yum 包管理器不会为我们自动跳过已经安装的软件包，那么我们每执行一次这个配置，都会重复安装一遍 python，最后就会导致硬盘容量越来越小，浪费了很多空间。所以，在多数情况下，我们应该尽可能的使用 Ansible 的模块来保证<code>幂等性</code>。</p>
+<p>最后，根据我的项目的实际情况，写出如下的 <code>playbook</code> 配置：</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">- hosts:</span> <span class="string">default</span></span><br><span class="line"><span class="attr">  remote_user:</span> <span class="string">root</span></span><br><span class="line"><span class="attr">  sudo:</span> <span class="literal">yes</span></span><br><span class="line"><span class="attr">  tasks:</span></span><br><span class="line"><span class="attr">  - name:</span> <span class="string">安装</span> <span class="string">python</span> <span class="string">环境</span></span><br><span class="line"><span class="attr">    yum:</span> </span><br><span class="line"><span class="attr">      name:</span> <span class="string">python</span></span><br><span class="line"><span class="attr">      state:</span> <span class="string">installed</span></span><br><span class="line"><span class="attr">  - name:</span> <span class="string">安装</span> <span class="string">git</span> <span class="string">版本管理工具</span></span><br><span class="line"><span class="attr">    yum:</span> </span><br><span class="line"><span class="attr">      name:</span> <span class="string">git</span></span><br><span class="line"><span class="attr">      state:</span> <span class="string">installed</span></span><br><span class="line"><span class="attr">  - name:</span> <span class="string">安装</span> <span class="string">Docker</span> <span class="string">环境（yum-utils）</span></span><br><span class="line"><span class="attr">    yum:</span> </span><br><span class="line"><span class="attr">      name:</span> <span class="string">yum-utils</span> </span><br><span class="line"><span class="attr">      state:</span> <span class="string">installed</span></span><br><span class="line"><span class="attr">  - name:</span> <span class="string">安装</span> <span class="string">Docker</span> <span class="string">环境（device-mapper-persistent-data）</span></span><br><span class="line"><span class="attr">    yum:</span> </span><br><span class="line"><span class="attr">      name:</span> <span class="string">device-mapper-persistent-data</span> </span><br><span class="line"><span class="attr">      state:</span> <span class="string">installed</span></span><br><span class="line"><span class="attr">  - name:</span> <span class="string">安装</span> <span class="string">Docker</span> <span class="string">环境（lvm2）</span></span><br><span class="line"><span class="attr">    yum:</span> </span><br><span class="line"><span class="attr">      name:</span> <span class="string">lvm2</span> </span><br><span class="line"><span class="attr">      state:</span> <span class="string">installed</span></span><br><span class="line"><span class="attr">  - name:</span> <span class="string">安装</span> <span class="string">Docker</span> <span class="string">环境（add</span> <span class="string">repo）</span></span><br><span class="line"><span class="attr">    yum_repository:</span> </span><br><span class="line"><span class="attr">      name:</span> <span class="string">docker-ce</span></span><br><span class="line"><span class="attr">      description:</span> <span class="string">Docker</span> <span class="string">CE</span> <span class="string">Stable</span></span><br><span class="line"><span class="attr">      baseurl:</span> <span class="attr">https://download.docker.com/linux/centos/7/$basearch/stable</span></span><br><span class="line"><span class="attr">      gpgkey:</span> <span class="attr">https://download.docker.com/linux/centos/gpg</span></span><br><span class="line"><span class="attr">      gpgcheck:</span> <span class="literal">yes</span></span><br><span class="line"><span class="attr">  - name:</span> <span class="string">安装</span> <span class="string">Docker</span> <span class="string">环境（docker-ce）</span></span><br><span class="line"><span class="attr">    yum:</span> </span><br><span class="line"><span class="attr">      name:</span> <span class="string">docker-ce</span></span><br><span class="line"><span class="attr">      state:</span> <span class="string">installed</span></span><br><span class="line"><span class="attr">      enablerepo:</span> <span class="string">docker-ce</span></span><br><span class="line"><span class="attr">  - name:</span> <span class="string">启动</span> <span class="string">Docker</span></span><br><span class="line"><span class="attr">    systemd:</span> </span><br><span class="line"><span class="attr">      name:</span> <span class="string">docker</span> </span><br><span class="line"><span class="attr">      state:</span> <span class="string">started</span></span><br><span class="line"><span class="attr">      enabled:</span> </span><br><span class="line"><span class="attr">  - name:</span> <span class="string">安装</span> <span class="string">docker-py</span></span><br><span class="line"><span class="attr">    pip:</span></span><br><span class="line"><span class="attr">      name:</span> <span class="string">docker-py</span></span><br><span class="line"><span class="attr">  - name:</span> <span class="string">下拉</span> <span class="string">nodejs</span> <span class="string">镜像</span></span><br><span class="line"><span class="attr">    docker_image:</span> </span><br><span class="line"><span class="attr">      name:</span> <span class="string">"node:9.11-alpine"</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="attr">- hosts:</span> <span class="string">master</span></span><br><span class="line"><span class="attr">  remote_user:</span> <span class="string">root</span></span><br><span class="line"><span class="attr">  tasks:</span></span><br><span class="line"><span class="attr">  - name:</span> <span class="string">下拉</span> <span class="string">redis</span> <span class="string">镜像</span></span><br><span class="line"><span class="attr">    docker_image:</span> </span><br><span class="line"><span class="attr">      name:</span> <span class="string">"redis:3.2-alpine"</span></span><br><span class="line"><span class="attr">  - name:</span> <span class="string">启动</span> <span class="string">redis</span></span><br><span class="line"><span class="attr">    docker_container:</span></span><br><span class="line"><span class="attr">      name:</span> <span class="string">redis</span></span><br><span class="line"><span class="attr">      image:</span> <span class="string">"redis:3.2-alpine"</span></span><br><span class="line"><span class="attr">      restart_policy:</span> <span class="string">always</span></span><br><span class="line"><span class="attr">      ports:</span></span><br><span class="line"><span class="bullet">        -</span> <span class="string">"6379:6379"</span></span><br><span class="line"><span class="attr">      volumes:</span></span><br><span class="line"><span class="bullet">        -</span> <span class="string">/app/data/redis:/data</span></span><br><span class="line"><span class="attr">      env:</span> </span><br><span class="line"><span class="attr">        appendonly:</span> <span class="literal">yes</span></span><br><span class="line"><span class="attr">      state:</span> <span class="string">started</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置中省略了 NodeJS 容器的安装、运行等操作，因为大体的配置基本一样。更多操作直接参考官方文档即可。</span></span><br></pre></td></tr></table></figure>
+<p>最后，我们在终端中输入 <code>ansible-playbook -i ./inventory playbook.yml -f 10</code>，就可以自动化的初始化系统环境，并运行相应服务了。</p>
+<p><img src="https://saekiraku-1253597019.coscd.myqcloud.com/image/l5mia.png" alt="运行效果"><br><img src="https://saekiraku-1253597019.coscd.myqcloud.com/image/dckaf.png" alt="服务器列表"></p>
+
+        
+        </div>
+        <footer class="article-footer">
+            <div class="share-container">
+
+
+
+</div>
+
+    <a data-url="https://saekiraku.github.io/article/23722/" data-id="cjiebckig000q4ahlgavwypo7" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        // Prevent duplicate binding
+        if (typeof(__SHARE_BUTTON_BINDED__) === 'undefined' || !__SHARE_BUTTON_BINDED__) {
+            __SHARE_BUTTON_BINDED__ = true;
+        } else {
+            return;
+        }
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="fa fa-twitter article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="fa fa-facebook article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="fa fa-pinterest article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="fa fa-google article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+            
+    
+
+        </footer>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+    
+        <a href="/article/35563/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">下一篇</strong>
+            <div class="article-nav-title">学习理论与产品化：知识体系</div>
+        </a>
+    
+</nav>
+
+
+    
+</article>
+
+
+    
+    
+
+</section>
+            
+                
+<aside id="sidebar">
+   
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/article/23722/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://saekiraku-1253597019.coscd.myqcloud.com/image/jsope.png)" alt="基于 Ansible 的分布式爬虫自动化部署" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/运维/">运维</a></p>
+                            <p class="item-title"><a href="/article/23722/" class="title">基于 Ansible 的分布式爬虫自动化部署</a></p>
+                            <p class="item-date"><time datetime="2018-06-14T07:24:10.000Z" itemprop="datePublished">2018-06-14</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/article/35563/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://saekiraku-1253597019.coscd.myqcloud.com/image/f4bz8.png)" alt="学习理论与产品化：知识体系" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/产品/">产品</a></p>
+                            <p class="item-title"><a href="/article/35563/" class="title">学习理论与产品化：知识体系</a></p>
+                            <p class="item-date"><time datetime="2018-05-22T23:58:08.000Z" itemprop="datePublished">2018-05-23</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/article/26242/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://saekiraku-1253597019.coscd.myqcloud.com/image/sec7j.jpeg)" alt="Webpack 前端编译策略优化" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/前端/">前端</a></p>
+                            <p class="item-title"><a href="/article/26242/" class="title">Webpack 前端编译策略优化</a></p>
+                            <p class="item-date"><time datetime="2018-05-17T06:01:55.000Z" itemprop="datePublished">2018-05-17</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">分类</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/产品/">产品</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/前端/">前端</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/运维/">运维</a><span class="category-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li></ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/webpack/" style="font-size: 10px;">webpack</a> <a href="/tags/学习理论/" style="font-size: 10px;">学习理论</a> <a href="/tags/建构主义理论/" style="font-size: 10px;">建构主义理论</a> <a href="/tags/教育理论/" style="font-size: 10px;">教育理论</a> <a href="/tags/行为主义理论/" style="font-size: 10px;">行为主义理论</a> <a href="/tags/认知主义理论/" style="font-size: 10px;">认知主义理论</a>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://www.change.tm">启嘉网</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+
+            
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            &copy; 2018 佐伯楽<br>
+            Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="http://github.com/ppoffice">PPOffice</a>
+        </div>
+    </div>
+</footer>
+        
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>
