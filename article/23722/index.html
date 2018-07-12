@@ -13,7 +13,7 @@
 <meta property="og:description" content="使用 NodeJS + Redis + Ansible 实现分布式爬虫并且自动化批量部署上线。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://saekiraku-1253597019.coscd.myqcloud.com/image/jsope.png">
-<meta property="og:updated_time" content="2018-06-14T09:31:00.060Z">
+<meta property="og:updated_time" content="2018-07-11T08:17:13.732Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="基于 Ansible 的分布式爬虫自动化部署">
 <meta name="twitter:description" content="使用 NodeJS + Redis + Ansible 实现分布式爬虫并且自动化批量部署上线。">
@@ -151,11 +151,11 @@
         </div>
         <div class="article-info profile-block">
             <div class="article-info-block">
-                3
+                4
                 <span>文章</span>
             </div>
             <div class="article-info-block">
-                6
+                8
                 <span>标签</span>
             </div>
         </div>
@@ -234,6 +234,10 @@
             <p>使用 NodeJS + Redis + Ansible 实现分布式爬虫并且自动化批量部署上线。</p>
 <a id="more"></a>
 <hr>
+<blockquote>
+<p>本文章基于以下CC协议进行知识共享：署名（BY）-非商业性使用（NC）-禁止演绎（ND）</p>
+</blockquote>
+<hr>
 <h1 id="分布式爬虫"><a href="#分布式爬虫" class="headerlink" title="分布式爬虫"></a>分布式爬虫</h1><p>之前在爬取一个网站的数据时，为了保证可以稳定的访问站点，不被网站屏蔽。尝试了很多方法，除了伪造请求头的UA、Cookie，还要对请求频率进行限制，或者通过代理服务器访问来改变请求来源。但是限制频率和请求代理会导致爬虫的效率变得非常低。因此，决定改成分布式爬虫，由多台服务器同时进行爬取。</p>
 <p>该爬虫主要使用了 <code>NodeJS</code> 开发，并使用了 <code>Cheerio</code> 和 <code>ioredis</code> 两个框架。使用 Redis 同步各个爬虫的工作进度，并存储主要数据。</p>
 <p>使用分布式爬虫，就需要为每个服务器安装环境，初始化配置等等。2、3个服务器还好说，但是如果有100台服务器，我们肯定不能手动的为每台服务器都配置一遍，1是人工容易出错，2是效率太低。</p>
@@ -273,7 +277,7 @@
 
 </div>
 
-    <a data-url="https://saekiraku.github.io/article/23722/" data-id="cjiebckig000q4ahlgavwypo7" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+    <a data-url="https://saekiraku.github.io/article/23722/" data-id="cjji9r9bb00059bfyf98uorj2" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
 <script>
     (function ($) {
         // Prevent duplicate binding
@@ -348,6 +352,15 @@
         
 <nav id="article-nav">
     
+        <a href="/article/21343/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">上一篇</strong>
+            <div class="article-nav-title">
+                
+                    Linux 基本安全策略
+                
+            </div>
+        </a>
+    
     
         <a href="/article/35563/" id="article-nav-older" class="article-nav-link-wrap">
             <strong class="article-nav-caption">下一篇</strong>
@@ -374,6 +387,25 @@
         <h3 class="widget-title">最新文章</h3>
         <div class="widget">
             <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/article/21343/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://saekiraku-1253597019.coscd.myqcloud.com/image/9zx2j.png)" alt="Linux 基本安全策略" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/运维/">运维</a></p>
+                            <p class="item-title"><a href="/article/21343/" class="title">Linux 基本安全策略</a></p>
+                            <p class="item-date"><time datetime="2018-07-11T08:07:40.000Z" itemprop="datePublished">2018-07-11</time></p>
+                        </div>
+                    </li>
                 
                     <li>
                         
@@ -441,7 +473,7 @@
     <div class="widget-wrap">
         <h3 class="widget-title">分类</h3>
         <div class="widget">
-            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/产品/">产品</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/前端/">前端</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/运维/">运维</a><span class="category-list-count">1</span></li></ul>
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/产品/">产品</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/前端/">前端</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/运维/">运维</a><span class="category-list-count">2</span></li></ul>
         </div>
     </div>
 
@@ -450,7 +482,7 @@
     <div class="widget-wrap">
         <h3 class="widget-title">归档</h3>
         <div class="widget">
-            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li></ul>
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li></ul>
         </div>
     </div>
 
@@ -459,7 +491,7 @@
     <div class="widget-wrap">
         <h3 class="widget-title">标签云</h3>
         <div class="widget tagcloud">
-            <a href="/tags/webpack/" style="font-size: 10px;">webpack</a> <a href="/tags/学习理论/" style="font-size: 10px;">学习理论</a> <a href="/tags/建构主义理论/" style="font-size: 10px;">建构主义理论</a> <a href="/tags/教育理论/" style="font-size: 10px;">教育理论</a> <a href="/tags/行为主义理论/" style="font-size: 10px;">行为主义理论</a> <a href="/tags/认知主义理论/" style="font-size: 10px;">认知主义理论</a>
+            <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/webpack/" style="font-size: 10px;">webpack</a> <a href="/tags/学习理论/" style="font-size: 10px;">学习理论</a> <a href="/tags/安全/" style="font-size: 10px;">安全</a> <a href="/tags/建构主义理论/" style="font-size: 10px;">建构主义理论</a> <a href="/tags/教育理论/" style="font-size: 10px;">教育理论</a> <a href="/tags/行为主义理论/" style="font-size: 10px;">行为主义理论</a> <a href="/tags/认知主义理论/" style="font-size: 10px;">认知主义理论</a>
         </div>
     </div>
 
