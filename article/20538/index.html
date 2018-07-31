@@ -3,18 +3,22 @@
 <head>
     <meta charset="utf-8">
     
-    <title>标签: 教育理论 | Blog</title>
+    <title>启嘉网微服务架构实践 | Blog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="略懂设计的程序员">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Blog">
-<meta property="og:url" content="https://saekiraku.github.io/tags/教育理论/index.html">
+    <meta name="description" content="关于微服务架构的思考、设计和实践">
+<meta name="keywords" content="微服务">
+<meta property="og:type" content="article">
+<meta property="og:title" content="启嘉网微服务架构实践">
+<meta property="og:url" content="https://saekiraku.github.io/article/20538/index.html">
 <meta property="og:site_name" content="Blog">
-<meta property="og:description" content="略懂设计的程序员">
+<meta property="og:description" content="关于微服务架构的思考、设计和实践">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://saekiraku-1253597019.coscd.myqcloud.com/image/di567.png">
+<meta property="og:updated_time" content="2018-07-31T06:40:38.790Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Blog">
-<meta name="twitter:description" content="略懂设计的程序员">
+<meta name="twitter:title" content="启嘉网微服务架构实践">
+<meta name="twitter:description" content="关于微服务架构的思考、设计和实践">
+<meta name="twitter:image" content="https://saekiraku-1253597019.coscd.myqcloud.com/image/di567.png">
     
 
     
@@ -182,50 +186,180 @@
 </aside>
 
             
-            <section id="main">
-<div class="timeline timeline-wrap">
-    <div class="timeline-row timeline-row-major">
-        <span class="node"><i class="fa fa-tag"></i></span>
-        <h1 class="title">#教育理论</h1>
-    </div>
-    
-        <div class="timeline-row">
-            <span class="node"></span>
-            <div class="content">
+            <section id="main"><article id="post-启嘉网微服务架构实践" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
                 
     
-        <h1 itemprop="name">
-            <a class="timeline-article-title" href="/article/35563/">学习理论与产品化：知识体系</a>
+        <h1 class="article-title" itemprop="name">
+            启嘉网微服务架构实践
         </h1>
     
 
-                <div class="article-meta">
-                    
+                
+                    <div class="article-meta">
+                        
     <div class="article-date">
         <i class="fa fa-calendar"></i>
-        <a href="/article/35563/">
-            <time datetime="2018-05-22T23:58:08.000Z" itemprop="datePublished">2018-05-23</time>
+        <a href="/article/20538/">
+            <time datetime="2018-07-31T02:20:53.000Z" itemprop="datePublished">2018-07-31</time>
         </a>
     </div>
 
 
-                    
+                        
     <div class="article-category">
     	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/categories/产品/">产品</a>
+        <a class="article-category-link" href="/categories/架构/">架构</a>
     </div>
 
-                    
+                        
     <div class="article-tag">
         <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/tags/学习理论/">学习理论</a>, <a class="tag-link" href="/tags/建构主义理论/">建构主义理论</a>, <a class="tag-link" href="/tags/教育理论/">教育理论</a>, <a class="tag-link" href="/tags/行为主义理论/">行为主义理论</a>, <a class="tag-link" href="/tags/认知主义理论/">认知主义理论</a>
+        <a class="tag-link" href="/tags/微服务/">微服务</a>
     </div>
 
-                </div>
-            </div>
+                    </div>
+                
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+            
+            <p>关于微服务架构的思考、设计和实践</p>
+<a id="more"></a>
+<hr>
+<blockquote>
+<p>本文章基于以下CC协议进行知识共享：署名（BY）-非商业性使用（NC）-禁止演绎（ND）</p>
+</blockquote>
+<hr>
+<h1 id="为什么选择微服务"><a href="#为什么选择微服务" class="headerlink" title="为什么选择微服务"></a>为什么选择微服务</h1><p>在之前的启嘉网后端中，我们使用传统的单体架构 .Net + PHP (中间层) 进行开发。但是在实际的开发过程中，遇到了以下几点问题：</p>
+<ol>
+<li>功能模块越来越多的时候，项目维护越来越困难，在推送版本更新时，经常出现未知问题导致整站崩溃。</li>
+<li>一些高负载的功能模块无法抽离，导致负载均衡较难实施。</li>
+<li>无意识写出的高耦合代码，导致产品需求变更时，连带修改太多。</li>
+<li>开发人员出现变动时（如请假、离职），较难调整开发安排及排期。</li>
+</ol>
+<p>而使用微服务架构的话，各个功能模块（服务）可以单独部署、单独更新，即便出现问题，也可以保证其他模块的正常使用。同时，也可以将高负载的微服务抽离到性能更高的服务器上进行优化。其次，微服务的设计思想所带来的低耦合，对产品设计、开发都比较有利。最后，在后端人员出现变动时，可以随时抽离人数更多的前端人员，使用 <strong>NodeJS</strong> / Python / Golang 等任意一种语言开发微服务，来保证排期的正常进行。</p>
+<h1 id="架构设计概述"><a href="#架构设计概述" class="headerlink" title="架构设计概述"></a>架构设计概述</h1><p><img src="https://saekiraku-1253597019.coscd.myqcloud.com/image/di567.png" alt="架构设计图示"></p>
+<p>如上图所示，微服务部分主要分为 3 层 —— 网关层、服务发现层、应用层。</p>
+<h2 id="网关层"><a href="#网关层" class="headerlink" title="网关层"></a>网关层</h2><p>客户端请求（浏览器）首先经过 <code>负载均衡服务器</code>（用于提升网关层的并发能力）。由 <code>网关层</code> 分析请求所涉及的微服务，然后调用 <code>服务发现层</code> 的接口，判断服务存活状态，并对多实例的微服务进行负载均衡。获取到微服务实例的地址后，进行 RPC 远程调用，然后将结果返回给客户端。</p>
+<h2 id="应用层"><a href="#应用层" class="headerlink" title="应用层"></a>应用层</h2><p>应用层即实际的业务逻辑部分，由基于 NodeJS / Pytonn / Golang 等任意框架或语言开发的微服务组成。服务间通信使用谷歌的 gRPC 框架进行远程调用。应用层的服务在启动时会调用 <code>服务发现层</code> 的接口进行服务注册，同时，在服务不可用时，<code>服务发现层</code> 会自动剔除该节点来保证服务的稳定运行。虽然说以启嘉网目前的规模，使用 RPC 还是 HTTP 并不会产生较大的性能差异，但是为了适配未来的发展和学习研究等目的，我们仍然选择了 gRPC。</p>
+<h2 id="服务发现层"><a href="#服务发现层" class="headerlink" title="服务发现层"></a>服务发现层</h2><p>网上主流的解决方案中，通常是使用 gRPC + etcd 这样的组合，并由 <code>etcd</code> 进行服务注册与发现的工作。但是由于时间关系，在方案落地过程中，我没有太多的时间去完全学习所有的技术栈组合。因此决定使用自己擅长的 NodeJS 自行开发，同时由于 JS 是动态语言，那么在构建 <code>服务发现层</code> 和 <code>网关层</code> 这样不确定（动态）因素较多的应用时，不必像 Golang 一样频繁的使用反射来实现相关功能。</p>
+<h1 id="落地实施"><a href="#落地实施" class="headerlink" title="落地实施"></a>落地实施</h1><p>在启嘉网这边落地微服务有几个原则：</p>
+<ol>
+<li>不让架构过分入侵业务代码。</li>
+<li>优先使用类库而不是框架。</li>
+<li>渐进式。</li>
+</ol>
+<p>为了实现以上几点，我们针对 NodeJS / Python / Goloang 封装了基础库，将服务发现层的相关操作对外简化，来达到 <code>不让架构过分入侵业务代码</code>，如 Golang 建立服务的所有操作仅需要4行代码，其中包括检测服务器自身环境、自动寻找可用地址和端口等等。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	server := microservice.CreateServer()</span><br><span class="line">	service := <span class="built_in">new</span>(service)</span><br><span class="line">	pb.RegisterGreeterServer(server, service)</span><br><span class="line">	microservice.Register(<span class="string">"helloworld"</span>, server)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>优先使用类库而不是框架</code> 实际也是一个不入侵业务代码的体现，但是更重要的是希望能简化处理，不要因为使用某个框架而学习框架带来的很多抽象概念。</p>
+<p>最后，由于项目功能模块比较多，想快速完美的切换到微服务架构是基本不可能的。因此，需要 <code>渐进式</code>，用细分化的微服务逐渐替换掉原有单体应用中的功能。这部分只需要网关层判断一下即可。</p>
+
+        
         </div>
-    
+        <footer class="article-footer">
+            <div class="share-container">
+
+
+
 </div>
+
+    <a data-url="https://saekiraku.github.io/article/20538/" data-id="cjk92slpd0000nofymp2x9klr" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        // Prevent duplicate binding
+        if (typeof(__SHARE_BUTTON_BINDED__) === 'undefined' || !__SHARE_BUTTON_BINDED__) {
+            __SHARE_BUTTON_BINDED__ = true;
+        } else {
+            return;
+        }
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="fa fa-twitter article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="fa fa-facebook article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="fa fa-pinterest article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="fa fa-google article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+            
+    
+
+        </footer>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+    
+        <a href="/article/21343/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">下一篇</strong>
+            <div class="article-nav-title">Linux 基本安全策略</div>
+        </a>
+    
+</nav>
+
+
+    
+</article>
+
+
+    
+    
+
 </section>
             
                 
