@@ -3,18 +3,20 @@
 <head>
     <meta charset="utf-8">
     
-    <title>分类: 运维 | Blog</title>
+    <title>【译】MacOS下的交叉编译 | Blog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="略懂设计的程序员">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Blog">
-<meta property="og:url" content="https://saekiraku.github.io/categories/运维/index.html">
+    <meta name="description" content="原文地址：Easy Windows and Linux cross-compilers for MacOS">
+<meta name="keywords" content="Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【译】MacOS下的交叉编译">
+<meta property="og:url" content="https://saekiraku.github.io/article/18577/index.html">
 <meta property="og:site_name" content="Blog">
-<meta property="og:description" content="略懂设计的程序员">
+<meta property="og:description" content="原文地址：Easy Windows and Linux cross-compilers for MacOS">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-09-08T15:08:06.583Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Blog">
-<meta name="twitter:description" content="略懂设计的程序员">
+<meta name="twitter:title" content="【译】MacOS下的交叉编译">
+<meta name="twitter:description" content="原文地址：Easy Windows and Linux cross-compilers for MacOS">
     
 
     
@@ -182,81 +184,181 @@
 </aside>
 
             
-            <section id="main">
-<div class="timeline timeline-wrap">
-    <div class="timeline-row timeline-row-major">
-        <span class="node"><i class="fa fa-folder"></i></span>
-        <h1 class="title">运维</h1>
-    </div>
-    
-        <div class="timeline-row">
-            <span class="node"></span>
-            <div class="content">
+            <section id="main"><article id="post-【译】MacOS下的交叉编译" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
                 
     
-        <h1 itemprop="name">
-            <a class="timeline-article-title" href="/article/21343/">Linux 基本安全策略</a>
+        <h1 class="article-title" itemprop="name">
+            【译】MacOS下的交叉编译
         </h1>
     
 
-                <div class="article-meta">
-                    
+                
+                    <div class="article-meta">
+                        
     <div class="article-date">
         <i class="fa fa-calendar"></i>
-        <a href="/article/21343/">
-            <time datetime="2018-07-11T08:07:40.000Z" itemprop="datePublished">2018-07-11</time>
+        <a href="/article/18577/">
+            <time datetime="2018-09-08T12:09:52.000Z" itemprop="datePublished">2018-09-08</time>
         </a>
     </div>
 
 
-                    
+                        
     <div class="article-category">
     	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/categories/运维/">运维</a>
+        <a class="article-category-link" href="/categories/Linux/">Linux</a>
     </div>
 
-                    
+                        
     <div class="article-tag">
         <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/tags/Linux/">Linux</a>, <a class="tag-link" href="/tags/安全/">安全</a>
+        <a class="tag-link" href="/tags/Linux/">Linux</a>
     </div>
 
-                </div>
-            </div>
-        </div>
-    
-        <div class="timeline-row">
-            <span class="node"></span>
-            <div class="content">
+                    </div>
                 
-    
-        <h1 itemprop="name">
-            <a class="timeline-article-title" href="/article/23722/">基于 Ansible 的分布式爬虫自动化部署</a>
-        </h1>
-    
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+            
+            <p>原文地址：<a href="https://blog.filippo.io/easy-windows-and-linux-cross-compilers-for-macos/" target="_blank" rel="noopener">Easy Windows and Linux cross-compilers for MacOS</a></p>
+<a id="more"></a>
+<hr>
+<blockquote>
+<p>本文章基于以下CC协议进行知识共享：署名（BY）-非商业性使用（NC）-禁止演绎（ND）</p>
+</blockquote>
+<hr>
+<p>在 MacOS 下编译 Linux 和 Windows 的可执行程序，需要使用 Homebrew 安装 C/C++ 交叉编译工具链：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">brew install FiloSottile/musl-cross/musl-cross</span><br><span class="line">brew install mingw-w64</span><br></pre></td></tr></table></figure>
+<hr>
+<p>交叉编译 C 和 C++ 是非常痛苦的。</p>
+<p>当你使用 Golang 时，你只需要设置一个环境变量即可（译注：CC），对于 C 你则需要一整套离散的工具链，这也许需要一些中间件来进行构建，并且你需要非常清楚你每一步的目的。</p>
+<h1 id="musl-cross-make"><a href="#musl-cross-make" class="headerlink" title="musl-cross-make"></a>musl-cross-make</h1><p>幸运的是，<code>Rich Felker</code> 设计了一套 <code>Makefile</code> 来构建基于 <a href="http://www.musl-libc.org" target="_blank" rel="noopener">musl</a> 库的交叉编译器 —— <a href="https://github.com/richfelker/musl-cross-make" target="_blank" rel="noopener">musl-cross-make</a>。它使用了一些补丁，使其在 MacOS 上可以良好的运行。</p>
+<p>musl-cross-make 完美实现了独立的交叉编译器，所以你无需关注正确的库路径，也不需要了解在何处存放工具链。同时，它可以编译到任意架构的目标 Linux 上。</p>
+<p>需要注意的是，它是基于 musl 的 C 标准库。这意味着编译后的二进制库文件只能运行在基于 musl 的系统上，例如：Alpine。即便如此，如果你通过传入 <code>--static</code> 参数来构建静态二进制文件便可以运行在任何系统上，包括 <code>scratch</code> Docker 容器中。musl 是一个特殊的工程，它可以完整的支持静态编译二进制文件（译注：跨平台），所以并不推荐使用 <code>glibc</code> 来编译。</p>
+<h1 id="homebrew-musl-cross"><a href="#homebrew-musl-cross" class="headerlink" title="homebrew-musl-cross"></a>homebrew-musl-cross</h1><p>到目前为止，我非常喜欢 <code>Homebrew</code>。它允许你在一个完美的沙盒中构建应用，并且只有可执行文件链接到了环境变量中，类似 <a href="https://www.gnu.org/software/stow/" target="_blank" rel="noopener">GNU Stow</a> 的风格。同时，它也能管理资源并提供非常强大的开发工具。</p>
+<p>所以，我将 <code>musl-cross-make</code> 封装成了一个 <code>Homebrew Formula</code> 。我花了很长时间来构建这个项目，但是最终它成为了一个完整的交叉编译工具链，并且以不同的前缀链接进了 <code>/usr/local/bin</code>。例如： <code>x86_64-linux-musl-gcc</code> 。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install FiloSottile/musl-cross/musl-cross</span><br></pre></td></tr></table></figure>
+<p>它包含了一个预编译过的 <code>Homebrew Bottle</code> ，可以运行在 <code>High Sierra</code> 系统中。所以如果你想自己通过源码构建，使用 <code>brew install --build-from-source</code> 即可、</p>
+<p>其他的架构也是被支持的。比如基于树莓派的交叉编译器：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install FiloSottile/musl-cross/musl-cross --without-x86_64 --with-arm-hf</span><br></pre></td></tr></table></figure>
+<p>你也可以使用 <code>--with-i486</code>（x86 32-bit），<code>--with-aarch64</code>（ARM 64-bit），<code>--with-arm</code>（ARM soft-float）和 <code>--with-mips</code> 等开关参数。</p>
+<h1 id="应用到-Golang-和-Rust"><a href="#应用到-Golang-和-Rust" class="headerlink" title="应用到 Golang 和 Rust"></a>应用到 Golang 和 Rust</h1><p>为了交叉编译基于 <code>cgo</code> 的项目，你可以设置 <code>CC</code> 和 <code>CCX</code> 环境变量标志来构建到 <code>x86_64-linux-musl-gcc</code> 和 <code>x86_64-linux-musl-g++</code>（或其他相关架构）。该环境变量标志应放在 <code>GOOS</code> 和 <code>GOARCH</code> 两个环境变量标志之前。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CC=x86_64-linux-musl-gcc GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build -a -v main.go</span><br><span class="line">// 译注：自己额外增加的范例</span><br></pre></td></tr></table></figure>
+<p>如果使用这个工具链来交叉编译 Rust 项目，则添加以下设置到 <code>.cargo/config</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[target.x86_64-unknown-linux-musl]</span><br><span class="line">linker = &quot;x86_64-linux-musl-gcc&quot;</span><br></pre></td></tr></table></figure>
+<p>这里有一份更完整的 Rust 交叉编译教程：<a href="https://chr4.org/blog/2017/03/15/cross-compile-and-link-a-static-binary-on-macos-for-linux-with-cargo-and-rust/" target="_blank" rel="noopener">Cross compile and link a static binary on macos for linux with cargo and rust</a></p>
+<h1 id="mingw-w64"><a href="#mingw-w64" class="headerlink" title="mingw-w64"></a>mingw-w64</h1><p>对于 Windows 系统下的交叉编译，有一个 <code>Mingw-w64</code> 的 Formula 在 homebrew-core 中，所以你可以使用 <code>brew install mingw-w64</code> 直接安装。</p>
+<p>这个 GCC 工具链的前缀为 <code>x86_64-w64-mingw32-</code> 和 <code>i686-w64-mingw32-</code>。</p>
+<p>如果你觉得交叉编译比你想象中的有趣，也许你会想<a href="https://twitter.com/FiloSottile" target="_blank" rel="noopener">关注我的 Twitter</a></p>
+<h1 id="译后记"><a href="#译后记" class="headerlink" title="译后记"></a>译后记</h1><p>第一次在 Golang 项目中使用到了一个基于 CGO 的库 —— go-sqlite3，并且交叉编译失败，在查找解决方案时发现了一篇不错的文章，因此而翻译。这篇文章不错的地方一是包含了实际问题的解决方案；二是原文作者的讲解十分清晰，翻译起来也十分轻松；三是在原作者在解决问题的基础上，又能简单讲解交叉编译的一些基础知识，对于交叉编译后续的深入研究，可以作为不错的切入点。</p>
 
-                <div class="article-meta">
-                    
-    <div class="article-date">
-        <i class="fa fa-calendar"></i>
-        <a href="/article/23722/">
-            <time datetime="2018-06-14T07:24:10.000Z" itemprop="datePublished">2018-06-14</time>
-        </a>
-    </div>
-
-
-                    
-    <div class="article-category">
-    	<i class="fa fa-folder"></i>
-        <a class="article-category-link" href="/categories/运维/">运维</a>
-    </div>
-
-                    
-                </div>
-            </div>
+        
         </div>
-    
+        <footer class="article-footer">
+            <div class="share-container">
+
+
+
 </div>
+
+    <a data-url="https://saekiraku.github.io/article/18577/" data-id="cjltkeaf00002l0fyncm78lqu" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        // Prevent duplicate binding
+        if (typeof(__SHARE_BUTTON_BINDED__) === 'undefined' || !__SHARE_BUTTON_BINDED__) {
+            __SHARE_BUTTON_BINDED__ = true;
+        } else {
+            return;
+        }
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="fa fa-twitter article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="fa fa-facebook article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="fa fa-pinterest article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="fa fa-google article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+            
+    
+
+        </footer>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+    
+        <a href="/article/20538/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">下一篇</strong>
+            <div class="article-nav-title">启嘉网微服务架构实践</div>
+        </a>
+    
+</nav>
+
+
+    
+</article>
+
+
+    
+    
+
 </section>
             
                 
