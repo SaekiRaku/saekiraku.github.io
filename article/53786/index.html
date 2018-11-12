@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <meta charset="utf-8">
+    
+    <title>Docker Swarm 容器集群（一） | Blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="入门篇，简单介绍了基于 Docker Machine 搭建 Swarm 集群的方法。使用 Docker warm 可以让我们更容易的对应用、服务进行编排、管理，并解决很多 Runtime 问题。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Docker Swarm 容器集群（一）">
+<meta property="og:url" content="https://saekiraku.github.io/article/53786/index.html">
+<meta property="og:site_name" content="Blog">
+<meta property="og:description" content="入门篇，简单介绍了基于 Docker Machine 搭建 Swarm 集群的方法。使用 Docker warm 可以让我们更容易的对应用、服务进行编排、管理，并解决很多 Runtime 问题。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://saekiraku-1253597019.coscd.myqcloud.com/image/m4cz7.png">
+<meta property="og:updated_time" content="2018-11-12T10:03:28.760Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Docker Swarm 容器集群（一）">
+<meta name="twitter:description" content="入门篇，简单介绍了基于 Docker Machine 搭建 Swarm 集群的方法。使用 Docker warm 可以让我们更容易的对应用、服务进行编排、管理，并解决很多 Runtime 问题。">
+<meta name="twitter:image" content="https://saekiraku-1253597019.coscd.myqcloud.com/image/m4cz7.png">
+    
+
+    
+
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+
+
+</head>
+
+<body>
+    <script type="text/javascript" src="https://tajs.qq.com/stats?sId=65846734" charset="UTF-8"></script>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">Blog</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/.">首页</a>
+                
+                    <a class="main-nav-link" href="/archives">归档</a>
+                
+                    <a class="main-nav-link" href="/about">关于</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="http://saekiraku-1253597019.coscd.myqcloud.com/image/dr0bm.png" />
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/.">首页</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">归档</a></td>
+                
+                    <td><a class="main-nav-link" href="/about">关于</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索" />
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile" class="profile-fixed">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="http://saekiraku-1253597019.coscd.myqcloud.com/image/dr0bm.png" />
+            <h2 id="name">佐伯楽</h2>
+            <h3 id="title">Web Developer &amp; Designer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Hebei, China</span>
+            <a id="follow" target="_blank" href="https://github.com/saekiraku/">关注我</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                7
+                <span>文章</span>
+            </div>
+            <div class="article-info-block">
+                4
+                <span>标签</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="https://github.com/saekiraku/" target="_blank" title="github" class=tooltip>
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="https://weibo.com/5179454493/" target="_blank" title="weibo" class=tooltip>
+                            <i class="fa fa-weibo"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            <section id="main"><article id="post-Docker-Swarm-容器集群（一）" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            
+	
+		<img src="https://saekiraku-1253597019.coscd.myqcloud.com/image/m4cz7.png" class="article-banner" />
+	
+
+
+
+        
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+            Docker Swarm 容器集群（一）
+        </h1>
+    
+
+                
+                    <div class="article-meta">
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/article/53786/">
+            <time datetime="2018-10-29T01:34:11.000Z" itemprop="datePublished">2018-10-29</time>
+        </a>
+    </div>
+
+
+                        
+                        
+                    </div>
+                
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+            
+            <p>入门篇，简单介绍了基于 Docker Machine 搭建 Swarm 集群的方法。使用 Docker warm 可以让我们更容易的对应用、服务进行编排、管理，并解决很多 Runtime 问题。</p>
+<a id="more"></a>
+<hr>
+<blockquote>
+<p>本文章基于以下CC协议进行知识共享：署名（BY）-非商业性使用（NC）-禁止演绎（ND）</p>
+</blockquote>
+<hr>
+<p>阅读本文需要有 Linux、Docker、Docker Compose 的基础。</p>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>Docker Swarm 和 Docker Compose 一样，都是 Docker 官方容器编排项目，但不同的是，Docker Compose 是一个在单个服务器或主机上创建多个容器的工具，而 Docker Swarm 则是将若干台主机抽象为一个整体，并且通过一个入口统一管理这些主机上的各种 Docker 资源。Swarm 和 Kubernetes 比较类似，但是更加轻，具有的功能也较 Kubernetes 更少一些。</p>
+<h1 id="Docker-Machine"><a href="#Docker-Machine" class="headerlink" title="Docker Machine"></a>Docker Machine</h1><p>Docker Machine 是运行在桌面系统（Windows、MacOS）的 Docker Toolbox 中的一个工具，主要的功能是用来快速创建包含 Docker 环境的 Linux 虚拟机。实际上不使用 Docker Machine 也是可以使用 Swarm 集群的，使用 Docker Machine 只是为了模拟真实的服务器环境。</p>
+<h2 id="基本环境搭建"><a href="#基本环境搭建" class="headerlink" title="基本环境搭建"></a>基本环境搭建</h2><p>Docker Machine 本身并不包含虚拟机环境，它只负责调用相关的虚拟机接口（Microsoft Hyper-V、Virtual Box），自动下载并部署包含 Docker 全家桶环境的系统镜像。因此，在开始前我们需要安装以下虚拟机软件。</p>
+<h3 id="MacOS：Virtual-Box"><a href="#MacOS：Virtual-Box" class="headerlink" title="MacOS：Virtual Box"></a>MacOS：Virtual Box</h3><p>Virtual Box 是开源的虚拟机软件。在 MacOS 系统下，Docker Machine 会默认使用该虚拟机软件。</p>
+<p><a href="https://www.virtualbox.org" target="_blank" rel="noopener">Virtualbox.org 官网下载</a></p>
+<h3 id="Windows：Microsoft-Hyper-V"><a href="#Windows：Microsoft-Hyper-V" class="headerlink" title="Windows：Microsoft Hyper-V"></a>Windows：Microsoft Hyper-V</h3><p>在 Windows 下会默认使用 Hyper-V 但是通过 <code>--driver</code> 参数可以强制指定使用其他虚拟机软件。如果你使用的是 Windows 10 专业版，那么这个虚拟机软件已经集成在该版本的系统中了。</p>
+<h2 id="常用命令表"><a href="#常用命令表" class="headerlink" title="常用命令表"></a>常用命令表</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">docker-machine create &lt;虚拟机名称&gt;</span><br><span class="line"><span class="comment"># 创建虚拟机</span></span><br><span class="line"></span><br><span class="line">docker-machine ls</span><br><span class="line"><span class="comment"># 显示虚拟主机列表</span></span><br><span class="line"></span><br><span class="line">docker-machine ssh &lt;虚拟机名称&gt;</span><br><span class="line"><span class="comment"># 使用 SSH 连接到虚拟机</span></span><br><span class="line"></span><br><span class="line">docker-machine ip &lt;虚拟机名称&gt;</span><br><span class="line"><span class="comment"># 获取虚拟机IP地址</span></span><br><span class="line"></span><br><span class="line">docker-machine start &lt;虚拟机名称&gt;</span><br><span class="line"><span class="comment"># 启动虚拟机</span></span><br><span class="line"></span><br><span class="line">docker-machine stop &lt;虚拟机名称&gt;</span><br><span class="line"><span class="comment"># 停止虚拟机</span></span><br><span class="line"></span><br><span class="line">docker-machine <span class="built_in">kill</span> &lt;虚拟机名称&gt;</span><br><span class="line"><span class="comment"># 强制停止虚拟机</span></span><br><span class="line"></span><br><span class="line">docker-machine rm &lt;虚拟机名称&gt;</span><br><span class="line"><span class="comment"># 删除虚拟机</span></span><br></pre></td></tr></table></figure>
+<h2 id="创建虚拟主机"><a href="#创建虚拟主机" class="headerlink" title="创建虚拟主机"></a>创建虚拟主机</h2><p>为了模拟真实环境，我们创建 3 个节点，其中 1 个是 <code>管理节点</code> 还有 2 个 <code>工作节点</code> 。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker-machine create manager</span><br><span class="line">docker-machine create worker1</span><br><span class="line">docker-machine create worker2</span><br><span class="line"><span class="comment"># manager、worker1、worker2 为虚拟机名称</span></span><br></pre></td></tr></table></figure>
+<h2 id="挂载目录"><a href="#挂载目录" class="headerlink" title="挂载目录"></a>挂载目录</h2><p>为了在 Docker Machine 的虚拟机中部署应用，我们可以通过 <code>docker-machine scp</code> 命令将项目文件传入。或者为了方便我们随时修改，我们可以通过挂载目录的方式，将本地文件的任意修改，及时同步到虚拟机中。</p>
+<p>* 由于 mount 命令挂载目录是基于 <code>sshfs</code> 的，因此，需要先安装该工具及其前置依赖，以 MacOS 为例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">brew install osxfuse</span><br><span class="line">brew install gettext</span><br><span class="line">brew install sshfs</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">mkdir manager</span><br><span class="line">mkdir worker1b</span><br><span class="line">mkdir worker2</span><br><span class="line"><span class="comment"># 在本地为 3 个虚拟机分别创建目录</span></span><br><span class="line"></span><br><span class="line">docker-machine mount manager:/home/docker ./manager</span><br><span class="line"><span class="comment"># 挂载目录 mount 命令的第一个参数指明了虚拟机名称和虚拟机目录，第二个参数指明了本地目录</span></span><br><span class="line"></span><br><span class="line">touch manager/README.md</span><br><span class="line"><span class="comment"># 在本地目录新建一个文件</span></span><br><span class="line">docker-machine ssh manager ls</span><br><span class="line"><span class="comment"># 使用 ssh 命令查看工作节点中的文件是否存在</span></span><br></pre></td></tr></table></figure>
+<p>OK，到这里 Docker Machine 的准备工作就已经完成了。</p>
+<h1 id="Docker-Swarm"><a href="#Docker-Swarm" class="headerlink" title="Docker Swarm"></a>Docker Swarm</h1><p>Swarm 是一组基于 Docker 的物理主机集群，虽然集群模式相对以往的运行模式不同，但是你仍然可以使用你所熟悉的 Docker API 进行管理。并且多数情况下，你只需要在 <code>管理节点</code> 中进行部署操作，而无需登录到指定的机器中。</p>
+<h2 id="创建集群"><a href="#创建集群" class="headerlink" title="创建集群"></a>创建集群</h2><p>首先，我们使用 <code>docker-machine ls</code> 命令，查看我们已经创建好的虚拟机，并记下 <code>管理节点</code> manager 的 IP 地址。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">NAME</th>
+<th style="text-align:center">ACTIVE</th>
+<th style="text-align:center">DRIVER</th>
+<th style="text-align:center">STATE</th>
+<th style="text-align:center">URL</th>
+<th style="text-align:center">…</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">manager</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">virtualbox</td>
+<td style="text-align:center">Running</td>
+<td style="text-align:center">tcp://192.168.99.100:2376</td>
+<td style="text-align:center">…</td>
+</tr>
+<tr>
+<td style="text-align:center">worker1</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">virtualbox</td>
+<td style="text-align:center">Running</td>
+<td style="text-align:center">tcp://192.168.99.101:2376</td>
+<td style="text-align:center">…</td>
+</tr>
+<tr>
+<td style="text-align:center">worker2</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">virtualbox</td>
+<td style="text-align:center">Running</td>
+<td style="text-align:center">tcp://192.168.99.102:2376</td>
+<td style="text-align:center">…</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">docker-machine ssh manager</span><br><span class="line"><span class="comment"># 进入管理节点</span></span><br><span class="line"></span><br><span class="line">docker swarm init --advertise-addr 192.168.99.100</span><br><span class="line"><span class="comment"># 初始化 swarm 通过 --advertise-addr 参数确定集群管理节点所绑定的网卡</span></span><br><span class="line"></span><br><span class="line">docker swarm join-token worker</span><br><span class="line"><span class="comment"># 使用 join-token 命令生成供工作节点使用的加入集群的 Token 串，并复制下来。</span></span><br><span class="line"></span><br><span class="line"><span class="comment">####### Ctrl + D 离开管理节点 #######</span></span><br><span class="line"></span><br><span class="line">docker-machine ssh worker1</span><br><span class="line"><span class="comment"># 进入 worker1 工作节点</span></span><br><span class="line"></span><br><span class="line">docker swarm join --token SWMTKN-1-1zcuycf2uqevg5zfg91sorwnyi2itcm99wj1evr8h8mvtt0vtg-blnoyanjibhkmlw6cdubn2dnl 192.168.99.100:2377</span><br><span class="line"><span class="comment"># 粘贴刚才在主节点获得的 Token 串</span></span><br><span class="line"></span><br><span class="line"><span class="comment">####### Ctrl + D 离开 worker1 节点，并对 worker2 重复上述操作 #######</span></span><br></pre></td></tr></table></figure>
+<p>最后我们回到 <code>管理节点</code> 使用 <code>docker node ls</code> 来查看我们创建的集群。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">ID</th>
+<th style="text-align:center">HOSTNAME</th>
+<th style="text-align:center">STATUS</th>
+<th style="text-align:center">AVAILABILITY</th>
+<th style="text-align:center">MANAGER STATUS</th>
+<th style="text-align:center">ENGINE VERSION</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">mmbh5fpw0mljoiddyzldwekwh *</td>
+<td style="text-align:center">manager</td>
+<td style="text-align:center">Ready</td>
+<td style="text-align:center">Active</td>
+<td style="text-align:center">Leader</td>
+<td style="text-align:center">18.06.1-ce</td>
+</tr>
+<tr>
+<td style="text-align:center">w68ntsp3l8vcqns6doma5hqd4</td>
+<td style="text-align:center">worker1</td>
+<td style="text-align:center">Ready</td>
+<td style="text-align:center">Active</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">18.06.1-ce</td>
+</tr>
+<tr>
+<td style="text-align:center">ilq3qvycdp4739ghtvty02lsf</td>
+<td style="text-align:center">worker2</td>
+<td style="text-align:center">Ready</td>
+<td style="text-align:center">Active</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">18.06.1-ce</td>
+</tr>
+</tbody>
+</table>
+<p>如果上述步骤中有任何的操作问题，都可以使用 <code>docker swarm leave</code> 命令来离开集群并重建。</p>
+<h2 id="部署应用"><a href="#部署应用" class="headerlink" title="部署应用"></a>部署应用</h2><p>确定完成以上步骤后（创建虚拟机、创建 Swarm 集群、挂载目录），我们开始部署应用。为了降低学习成本，我们编写一个简单的 <code>Docker Compose</code> 文件。</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 该文件名为：docker-compose.yml</span></span><br><span class="line"><span class="attr">version:</span> <span class="string">"3"</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line"><span class="attr">  service-manager:</span></span><br><span class="line"><span class="attr">    image:</span> <span class="attr">alpine:3.8</span></span><br><span class="line"><span class="attr">    command:</span></span><br><span class="line"><span class="bullet">      -</span> <span class="string">top</span></span><br></pre></td></tr></table></figure>
+<p>然后将该文件放入我们挂载的目录中，使用 <code>docker-machine ssh manager</code> 命令进入管理节点。（<strong>请注意：</strong> 针对 Swarm 集群进行的操作，都必须在<strong>管理节点中进行</strong>）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker swarm deploy -c docker-compose.yml swarm-manager</span><br><span class="line"><span class="comment"># 使用 docker swarm deploy 命令部署应用</span></span><br><span class="line"><span class="comment"># -c 参数指明了 Docker Compose 的配置文件</span></span><br><span class="line"><span class="comment"># 结尾的参数指明了该 stack 的堆名</span></span><br></pre></td></tr></table></figure>
+<p>最后使用 <code>docker ps -a</code> 命令，就可以看到我们部署的服务容器了。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">CONTAINER ID</th>
+<th style="text-align:center">IMAGE</th>
+<th style="text-align:center">COMMAND</th>
+<th style="text-align:center">CREATED</th>
+<th style="text-align:center">STATUS</th>
+<th style="text-align:center">…</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">3aa35fe94403</td>
+<td style="text-align:center">alpine:3.8</td>
+<td style="text-align:center">“top”</td>
+<td style="text-align:center">49 seconds ago</td>
+<td style="text-align:center">Up 48 seconds</td>
+<td style="text-align:center">…</td>
+</tr>
+</tbody>
+</table>
+<p>使用 <code>docker stack ls</code> 命令可以查看当前集群中部署的所有应用堆</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">NAME</th>
+<th style="text-align:center">SERVICES</th>
+<th style="text-align:center">ORCHESTRATOR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">swarm-manager</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">Swarm</td>
+</tr>
+</tbody>
+</table>
+<p>如果你的容器没有运行起来，可以使用 <code>docker stack ps swarm-manager --no-trunc</code> 命令查看具体是因为什么原因而出错的。</p>
+<h2 id="将应用部署至特定的主机节点"><a href="#将应用部署至特定的主机节点" class="headerlink" title="将应用部署至特定的主机节点"></a>将应用部署至特定的主机节点</h2><p>部署特定主机节点，需要通过 Docker Compose 文件中的 <code>deploy.placement.constraints</code> 配置进行约束，例如我们可以将服务部署至所有 <code>Ubuntu</code> 系统上，或者只在 <code>工作节点</code> 上部署。当然，为了完全确定部署至哪个节点，我们需要给主机节点增加 <code>Labels</code> 标签，并通过标签进行约束。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">docker-machine ssh manager</span><br><span class="line">docker node update --label-add role=manager</span><br><span class="line"><span class="comment"># --label-add 参数传入的值是 KV 类型的，= 符号之前的 role 为键名，= 符号之后的 manager 为键值</span></span><br><span class="line"></span><br><span class="line">docker-machine ssh worker1</span><br><span class="line">docker node update --label-add role=worker1</span><br><span class="line"></span><br><span class="line">docker-machine ssh worker2</span><br><span class="line">docker node update --label-add role=worker2</span><br></pre></td></tr></table></figure>
+<p>然后，我们再为 <code>工作节点</code> 编写 2 个 Docker Compose 配置文件：</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># worker1.yml</span></span><br><span class="line"><span class="attr">version:</span> <span class="string">"3"</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line"><span class="attr">  service-worker1:</span></span><br><span class="line"><span class="attr">    image:</span> <span class="attr">alpine:3.8</span></span><br><span class="line"><span class="attr">    deploy:</span></span><br><span class="line"><span class="attr">      placement:</span></span><br><span class="line"><span class="attr">        constraints:</span></span><br><span class="line"><span class="bullet">          -</span> <span class="string">node.labels.role</span> <span class="string">==</span> <span class="string">worker1</span></span><br><span class="line"><span class="attr">    command:</span></span><br><span class="line"><span class="bullet">      -</span> <span class="string">top</span></span><br><span class="line"></span><br><span class="line"><span class="attr">  service-worker2:</span></span><br><span class="line"><span class="attr">    image:</span> <span class="attr">alpine:3.8</span></span><br><span class="line"><span class="attr">    deploy:</span></span><br><span class="line"><span class="attr">      placement:</span></span><br><span class="line"><span class="attr">        constraints:</span></span><br><span class="line"><span class="bullet">          -</span> <span class="string">node.labels.role</span> <span class="string">==</span> <span class="string">worker1</span></span><br><span class="line"><span class="attr">    command:</span></span><br><span class="line"><span class="bullet">      -</span> <span class="string">top</span></span><br></pre></td></tr></table></figure>
+<p>最后，在管理节点执行部署命令。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker swarm deploy -c worker1.yml swarm-worker1</span><br></pre></td></tr></table></figure>
+<p>此时，如果你在 <code>管理节点</code> 使用 <code>docker ps -a</code> 命令会发现 Docker 并没有创建新的容器。因为我们约束了应用的部署位置，之后我们进入 <code>worker1</code> 节点，查看容器列表就可以看到我们部署的应用了。</p>
+<h2 id="优雅的编写-Nginx-负载均衡"><a href="#优雅的编写-Nginx-负载均衡" class="headerlink" title="优雅的编写 Nginx 负载均衡"></a>优雅的编写 Nginx 负载均衡</h2><p>完成应用部署后，现在我们进入 <code>管理节点</code>，使用 <code>docker ps -a</code> 获得容器 ID，然后使用 <code>docker exec -it 容器ID /bin/sh</code> 进入容器内部。然后执行 <code>ping service-worker1</code> 会发现是可以 ping 通的，实际上当没有特殊配置时，容器会部署在 Swarm 自带的 Ingress 网络环境中（Overlay类型），在该网络环境中的所有容器服务，是可以 <code>跨主机</code> 进行通信的，并且会自动将服务名映射为 Hostname。现在，假设我们有 5 个工作节点，运行了一批服务，需要使用 Nginx 进行负载均衡，要怎么写？</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">upstream my-load-balance&#123;</span><br><span class="line">    server service-worker1:80;</span><br><span class="line">    server service-worker2:80;</span><br><span class="line">    server service-worker3:80;</span><br><span class="line">    server service-worker4:80;</span><br><span class="line">    server service-worker5:80;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>简直爽爆了有没有，对于负载均衡器来说，我们完全不需要去管服务节点到底部署到了哪个主机上或者环境是怎样的。我们只需要知道服务名即可。</p>
+<h2 id="集群内置的负载均衡"><a href="#集群内置的负载均衡" class="headerlink" title="集群内置的负载均衡"></a>集群内置的负载均衡</h2><p>类似上方简单策略的负载均衡，Swarm 集群本身也是可以做到的，你可以亲自试一试，将相同服务名的服务，部署在不同的主机上，然后在管理节点使用 ping 命令，其请求会随机转发到 2 台主机节点上。</p>
+<h1 id="THE-END"><a href="#THE-END" class="headerlink" title="THE END"></a>THE END</h1><p>关于服务节点的管理、应用堆的管理、集群内容器的管理等文章，请参考我的下一篇文章（暂无）。</p>
+
+        
+        </div>
+        <footer class="article-footer">
+            <div class="share-container">
+
+
+
+</div>
+
+    <a data-url="https://saekiraku.github.io/article/53786/" data-id="cjoe225m50000i79kctcb8yba" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        // Prevent duplicate binding
+        if (typeof(__SHARE_BUTTON_BINDED__) === 'undefined' || !__SHARE_BUTTON_BINDED__) {
+            __SHARE_BUTTON_BINDED__ = true;
+        } else {
+            return;
+        }
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="fa fa-twitter article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="fa fa-facebook article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="fa fa-pinterest article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="fa fa-google article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+            
+    
+
+        </footer>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+    
+        <a href="/article/18577/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">下一篇</strong>
+            <div class="article-nav-title">【译】MacOS下的交叉编译</div>
+        </a>
+    
+</nav>
+
+
+    
+</article>
+
+
+    
+    
+
+</section>
+            
+                
+<aside id="sidebar">
+   
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/article/53786/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://saekiraku-1253597019.coscd.myqcloud.com/image/m4cz7.png)" alt="Docker Swarm 容器集群（一）" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/article/53786/" class="title">Docker Swarm 容器集群（一）</a></p>
+                            <p class="item-date"><time datetime="2018-10-29T01:34:11.000Z" itemprop="datePublished">2018-10-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/article/18577/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://saekiraku-1253597019.coscd.myqcloud.com/image/z4c9z.png)" alt="【译】MacOS下的交叉编译" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Linux/">Linux</a></p>
+                            <p class="item-title"><a href="/article/18577/" class="title">【译】MacOS下的交叉编译</a></p>
+                            <p class="item-date"><time datetime="2018-09-08T12:09:52.000Z" itemprop="datePublished">2018-09-08</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/article/20538/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/微服务/">微服务</a></p>
+                            <p class="item-title"><a href="/article/20538/" class="title">启嘉网微服务架构实践</a></p>
+                            <p class="item-date"><time datetime="2018-07-31T02:20:53.000Z" itemprop="datePublished">2018-07-31</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/article/21343/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://saekiraku-1253597019.coscd.myqcloud.com/image/9zx2j.png)" alt="Linux 基本安全策略" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/运维/">运维</a></p>
+                            <p class="item-title"><a href="/article/21343/" class="title">Linux 基本安全策略</a></p>
+                            <p class="item-date"><time datetime="2018-07-11T08:07:40.000Z" itemprop="datePublished">2018-07-11</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/article/23722/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://saekiraku-1253597019.coscd.myqcloud.com/image/jsope.png)" alt="基于 Ansible 的分布式爬虫自动化部署" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/运维/">运维</a></p>
+                            <p class="item-title"><a href="/article/23722/" class="title">基于 Ansible 的分布式爬虫自动化部署</a></p>
+                            <p class="item-date"><time datetime="2018-06-14T07:24:10.000Z" itemprop="datePublished">2018-06-14</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">分类</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/产品/">产品</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/前端/">前端</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/微服务/">微服务</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/运维/">运维</a><span class="category-list-count">2</span></li></ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li></ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/Linux/" style="font-size: 20px;">Linux</a> <a href="/tags/webpack/" style="font-size: 10px;">webpack</a> <a href="/tags/安全/" style="font-size: 10px;">安全</a> <a href="/tags/微服务/" style="font-size: 10px;">微服务</a>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://www.change.tm">启嘉网</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+
+            
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            &copy; 2018 佐伯楽<br>
+            Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="http://github.com/ppoffice">PPOffice</a>
+        </div>
+    </div>
+</footer>
+        
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>
